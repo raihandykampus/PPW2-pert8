@@ -9,7 +9,6 @@
     <h1>Profil Saya</h1>
 
     <p>Halo, {{ Auth::user()->name }}!</p>
-
     <p>Email kamu adalah {{ Auth::user()->email }}</p>
     <p>Peran kamu adalah {{ Auth::user()->role }}</p>
 

@@ -40,3 +40,7 @@ Route::get('/admin', function() {
 Route::get('/admin/jobs', function() {
     return "Halaman Kelola Lowongan Kerja (Khusus Admin)";
 })->middleware(['auth', 'isAdmin']);
+
+
+Route::resource('jobs', JobController::class)
+     ->middleware(['auth', 'isAdmin']);
