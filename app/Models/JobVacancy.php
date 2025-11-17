@@ -20,4 +20,9 @@ class JobVacancy extends Model
         'salary',
         'job_type'
     ];
+    // Relasi: 1 Lowongan bisa punya BANYAK Lamaran
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'job_id');
+    }
 }

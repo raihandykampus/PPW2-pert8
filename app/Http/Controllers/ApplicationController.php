@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\JobVacancy;
+use App\Models\Application;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class ApplicationController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(JobVacancy $job)
+    {
+        // Ambil lamaran HANYA untuk lowongan ini ($job)
+        // 'with('user')' mengambil data user-nya sekalian (optimasi)
+        $applications = $job->applications()->with('user')->get();
+
+        // Kirim data ke view
+        return view('applications.index', compact('applications', 'job'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+    // 1. Validasi: pastikan file adalah PDF, maks 2MB
+        $request->validate([
+            'cv' => 'required|mimes:pdf|max:2048',
+        ]);
+
+        // 2. Simpan file CV ke 'storage/app/public/cvs'
+        $cvPath = $request->file('cv')->store('cvs', 'public');
+
+        // 3. Simpan data lamaran ke database
+        Application::create([
+            'user_id' => auth()->id(), // Ambil ID user yang sedang login
+            'job_id' => $request->job_id,       // Ambil ID lowongan dari URL
+            'cv' => $cvPath,          // Simpan path file CV
+            'status' => 'Pending'     // Status default
+        ]);
+
+        // 4. Kembalikan ke halaman sebelumnya
+        return back()->with('success', 'Lamaran berhasil dikirim!');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Application $application)
+    {
+        // Hanya update status
+        $application->update([
+            'status' => $request->status
+        ]);
+
+        return back()->with('success', 'Status pelamar diperbarui!');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}

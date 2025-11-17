@@ -31,12 +31,25 @@
                     </p>
                     
                     <div class="mt-auto"> 
-                        <a href="{{ route('jobs.edit', $job->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('jobs.destroy', $job->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus data?')">Hapus</button>
-                        </form>
+
+                        @if(Auth::user()->role === 'admin')
+                            <a href="{{ route('applications.index', $job->id) }}" class="btn btn-info btn-sm">Pelamar</a> <a href="{{ route('jobs.edit', $job->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{{ route('jobs.edit', $job->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{{ route('jobs.destroy', $job->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus data?')">Hapus</button>
+                            </form>
+                        @else
+                            <form action="{{ route('apply.store', $job->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="input-group">
+                                    <input type="file" name="cv" class="form-control form-control-sm" required>
+                                    <button type="submit" class="btn btn-primary btn-sm">Lamar</button>
+                                </div>
+                            </form>
+                        @endif
+
                     </div>
                 </div>
             </div>

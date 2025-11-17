@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController;
@@ -42,5 +43,32 @@ Route::get('/admin/jobs', function() {
 })->middleware(['auth', 'isAdmin']);
 
 
+// Route::resource('jobs', JobController::class)->middleware(['auth', 'isAdmin']);
+
+// 1. ROUTE UNTUK JOB SEEKER (USER BIASA)
+// Hanya boleh akses 'index' (melihat daftar) & 'show' (melihat detail)
 Route::resource('jobs', JobController::class)
-     ->middleware(['auth', 'isAdmin']);
+     ->middleware(['auth'])
+     ->only(['index', 'show']);
+
+// 2. ROUTE UNTUK ADMIN
+// Boleh akses sisanya: 'create', 'store', 'edit', 'update', 'destroy'
+Route::resource('jobs', JobController::class)
+     ->middleware(['auth', 'isAdmin'])
+     ->except(['index', 'show']);
+
+// Route untuk memproses lamaran (POST)
+Route::post('/jobs/{job}/apply', [ApplicationController::class, 'store'])
+     ->name('apply.store')
+     ->middleware('auth');
+
+// Route untuk Admin melihat daftar pelamar per lowongan
+Route::get('/jobs/{job}/applicants', [ApplicationController::class, 'index'])
+     ->name('applications.index')
+     ->middleware('isAdmin'); // Hanya Admin
+
+
+
+Route::put('/applications/{application}', [ApplicationController::class, 'update'])
+     ->name('applications.update')
+     ->middleware('isAdmin');
