@@ -6,13 +6,15 @@ use App\Models\JobVacancy;
 use App\Models\Application;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Exports\ApplicationsExport; 
+use Maatwebsite\Excel\Facades\Excel; 
 
 class ApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(JobVacancy $job)
+    public function index(JobVacancy $job) // Gunakan Route Model Binding
     {
         // Ambil lamaran HANYA untuk lowongan ini ($job)
         // 'with('user')' mengambil data user-nya sekalian (optimasi)
@@ -33,9 +35,9 @@ class ApplicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, $jobId)
     {
-    // 1. Validasi: pastikan file adalah PDF, maks 2MB
+        // 1. Validasi: pastikan file adalah PDF, maks 2MB
         $request->validate([
             'cv' => 'required|mimes:pdf|max:2048',
         ]);
@@ -46,7 +48,7 @@ class ApplicationController extends Controller
         // 3. Simpan data lamaran ke database
         Application::create([
             'user_id' => auth()->id(), // Ambil ID user yang sedang login
-            'job_id' => $request->job_id,       // Ambil ID lowongan dari URL
+            'job_id' => $jobId,       // Ambil ID lowongan dari URL
             'cv' => $cvPath,          // Simpan path file CV
             'status' => 'Pending'     // Status default
         ]);
@@ -90,5 +92,10 @@ class ApplicationController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function export(JobVacancy $job)
+    {
+        return Excel::download(new ApplicationsExport($job->id), 'pelamar_' . $job->title . '.xlsx');
     }
 }

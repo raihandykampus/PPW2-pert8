@@ -72,3 +72,15 @@ Route::get('/jobs/{job}/applicants', [ApplicationController::class, 'index'])
 Route::put('/applications/{application}', [ApplicationController::class, 'update'])
      ->name('applications.update')
      ->middleware('isAdmin');
+
+
+Route::get('/jobs/{job}/applicants/export', [ApplicationController::class, 'export'])
+     ->name('applications.export')
+     ->middleware('isAdmin');
+
+
+Route::post('/jobs/import', [JobController::class, 'import'])
+     ->name('jobs.import')
+     ->middleware('isAdmin');
+
+
