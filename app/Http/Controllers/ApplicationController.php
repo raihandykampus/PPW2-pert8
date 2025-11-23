@@ -6,8 +6,9 @@ use App\Models\JobVacancy;
 use App\Models\Application;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Exports\ApplicationsExport; 
-use Maatwebsite\Excel\Facades\Excel; 
+use Maatwebsite\Excel\Facades\Excel;
 
 class ApplicationController extends Controller
 {
@@ -98,4 +99,17 @@ class ApplicationController extends Controller
     {
         return Excel::download(new ApplicationsExport($job->id), 'pelamar_' . $job->title . '.xlsx');
     }
+
+    public function downloadCv(Application $application)
+    {
+        // Cek apakah file benar-benar ada
+        if (!Storage::disk('public')->exists($application->cv)) {
+            return back()->withErrors('File CV tidak ditemukan.');
+        }
+
+        // Gunakan Storage::download untuk memaksa download
+        // 'public' adalah disk, $application->cv adalah path filenya (cth: 'cvs/file.pdf')
+        return Storage::disk('public')->download($application->cv);
+    }
+
 }

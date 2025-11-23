@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Maatwebsite\Excel\Facades\Excel; 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\JobVacancy as Job;
 use Illuminate\Support\Facades\Storage;
 use App\Imports\JobsImport; 
-use Maatwebsite\Excel\Facades\Excel; 
+use App\Exports\JobImportTemplateExport;
 
 class JobController extends Controller
 {
@@ -149,10 +150,24 @@ class JobController extends Controller
         return redirect()->route('jobs.index')->with('success', 'Lowongan berhasil dihapus');
     }
 
+    public function downloadTemplate()
+    {
+        return Excel::download(new JobImportTemplateExport, 'template_lowongan.xlsx');
+    }
+
     public function import(Request $request)
     {
         $request->validate(['file' => 'required|mimes:xlsx,csv']);
 
+        // try {
+        //     Excel::import(new JobsImport, $request->file('file'));
+        // } catch (\Illuminate\Database\QueryException $e) {
+        //     if ($e->getCode() === 'HY000' && stripos($e->getMessage(), 'Incorrect integer value: \'Rejected\' for column \'salary\'') !== false) {
+        //         return back()->with('error', 'Gaji harus berupa angka, misalnya "Rejected" tidak valid.');
+        //     }
+
+        //     throw $e;
+        // }
         Excel::import(new JobsImport, $request->file('file'));
 
         return back()->with('success', 'Data lowongan berhasil di-import!');

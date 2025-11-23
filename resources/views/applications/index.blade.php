@@ -3,6 +3,9 @@
 <div class="container">
     <h2>Daftar Pelamar untuk: {{ $job->title }}</h2>
     <a href="{{ route('jobs.index') }}" class="btn btn-secondary mb-3">Kembali ke Lowongan</a>
+    <a href="{{ route('applications.export', $job->id) }}" class="btn btn-success mb-3">
+        Export ke Excel
+    </a>
 
     <table class="table table-bordered">
         <thead class="table-light">
@@ -31,6 +34,9 @@
                 <td>
                     <a href="{{ asset('storage/' . $app->cv) }}" target="_blank" class="btn btn-info btn-sm">
                         Lihat CV
+                    </a>
+                    <a href="{{ route('applications.downloadCv', $app->id) }}" class="btn btn-secondary btn-sm">
+                        Download
                     </a>
                 </td>
                 <td>

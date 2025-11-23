@@ -22,6 +22,18 @@ Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 Route::get('/dashboard', [AuthController::class, 'dashboard'])->middleware(['auth']);
 Route::get('/dashboard', [AuthController::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
+
+
+// LATIHAN 8: Route untuk download template
+Route::get('/jobs/import-template', [JobController::class, 'downloadTemplate'])
+     ->name('jobs.importTemplate')
+     ->middleware('isAdmin');
+
+Route::post('/jobs/import', [JobController::class, 'import'])
+     ->name('jobs.import')
+     ->middleware('isAdmin');
+
+
 // LATIHAN 1: route profile
 Route::get('/profile', function() {
     return view('profile');
@@ -73,14 +85,15 @@ Route::put('/applications/{application}', [ApplicationController::class, 'update
      ->name('applications.update')
      ->middleware('isAdmin');
 
+// LATIHAN 6: Route untuk download CV
+Route::get('/applications/{application}/download-cv', [ApplicationController::class, 'downloadCv'])
+     ->name('applications.downloadCv')
+     ->middleware('isAdmin');
 
 Route::get('/jobs/{job}/applicants/export', [ApplicationController::class, 'export'])
      ->name('applications.export')
      ->middleware('isAdmin');
 
 
-Route::post('/jobs/import', [JobController::class, 'import'])
-     ->name('jobs.import')
-     ->middleware('isAdmin');
 
 
