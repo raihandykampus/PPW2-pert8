@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\NewApplicationNotification;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendApplicationMailJob;
+use App\Mail\JobAppliedMail;
+use App\Mail\ApplicationStatusMail;
 use App\Models\JobVacancy;
 use App\Models\Application;
 use App\Http\Controllers\Controller;
@@ -47,15 +53,26 @@ class ApplicationController extends Controller
         $cvPath = $request->file('cv')->store('cvs', 'public');
 
         // 3. Simpan data lamaran ke database
-        Application::create([
+        $application = Application::create([
             'user_id' => auth()->id(), // Ambil ID user yang sedang login
             'job_id' => $jobId,       // Ambil ID lowongan dari URL
             'cv' => $cvPath,          // Simpan path file CV
             'status' => 'Pending'     // Status default
         ]);
 
-        // 4. Kembalikan ke halaman sebelumnya
-        return back()->with('success', 'Lamaran berhasil dikirim!');
+        $job = JobVacancy::find($jobId);
+
+        dispatch(new SendApplicationMailJob($job, auth()->user()));
+
+        // 3. KIRIM NOTIFIKASI KE SEMUA ADMIN
+        $admins = User::where('role', 'admin')->get(); // Ambil semua admin
+        foreach($admins as $admin) {
+            $admin->notify(new NewApplicationNotification($application));
+        }
+
+
+        return back()->with('success', 'Lamaran berhasil dikirim! Cek email Anda.');
+
     }
 
     /**
@@ -83,6 +100,9 @@ class ApplicationController extends Controller
         $application->update([
             'status' => $request->status
         ]);
+
+        // 2. Kirim Email Notifikasi Status (JAWABAN LATIHAN 3)
+        Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
 
         return back()->with('success', 'Status pelamar diperbarui!');
     }
