@@ -12,6 +12,12 @@ Route::get('/status', fn() => ['status' => 'API is running']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+
+// Latihan 4: Jobs Read-Only bisa diakses publik
+Route::get('/jobs', [JobApiController::class, 'index']);
+Route::get('/jobs/{job}', [JobApiController::class, 'show']);
+
+
 // Protected Routes (Harus punya Token)
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -19,8 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Jobs API
-    Route::get('/jobs', [JobApiController::class, 'index']);
-    Route::get('/jobs/{job}', [JobApiController::class, 'show']);
     Route::post('/jobs', [JobApiController::class, 'store']);
 
+    // latihan 2
+    Route::patch('/applications/{id}/status', [ApplicationApiController::class, 'updateStatus']);
 });

@@ -28,27 +28,40 @@ class JobApiController extends Controller
      * )
      * )
      */
-    
+
     // GET ALL (Dengan Pencarian)
     public function index(Request $req)
     {
         $q = Job::query();
 
-        // Fitur Search
+        // 1. Filter Keyword (Pencarian Umum) - Sudah ada di tutorial
         if ($req->filled('keyword')) {
             $kw = $req->keyword;
             $q->where(function($s) use ($kw) {
                 $s->where('title', 'like', "%$kw%")
-                  ->orWhere('company', 'like', "%$kw%")
-                  ->orWhere('location', 'like', "%$kw%");
+                ->orWhere('company', 'like', "%$kw%")
+                ->orWhere('location', 'like', "%$kw%");
             });
         }
 
-        // Pagination (10 per halaman)
-        $jobs = $q->orderBy('created_at', 'desc')->paginate(10);
+        // LATIHAN 1: Filter Spesifik (Company & Location)
+        if ($req->filled('company')) {
+            $q->where('company', 'like', '%' . $req->company . '%');
+        }
+
+        if ($req->filled('location')) {
+            $q->where('location', 'like', '%' . $req->location . '%');
+        }
+
+        // LATIHAN 3: Pagination Dinamis
+        // Ambil nilai 'per_page' dari URL, jika tidak ada default-nya 10
+        $perPage = $req->get('per_page', 10);
+        
+        $jobs = $q->orderBy('created_at', 'desc')->paginate($perPage);
+        
         return response()->json($jobs);
     }
-
+    
     // GET DETAIL
     public function show($id)
     {
